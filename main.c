@@ -1,16 +1,32 @@
-#include "view.h"
 #include "model.h"
+#include "controller.h"
+#include "view.h"
 
-int main(int argc, char *argv[]) {
-    // Shared memory'yi ana proses yönetecek
-    ShmBuf *shm = buf_init();
-    if (!shm) return EXIT_FAILURE;
-
-    init_view(argc, argv);
-
-    // Program kapanırken temizlik
-    buf_cleanup(shm);
-    shm_unlink(SHARED_FILE_PATH);
-    
-    return EXIT_SUCCESS;
+void global_cleanup() {
+    if (getpid() == main_pid) {
+        ShmBuf *shm = buf_init();
+        if (shm) buf_cleanup(shm);
+    }
 }
+
+int main(int argc, char **argv) {
+    main_pid = getpid();  // main_pid ataması
+    atexit(global_cleanup); // Program kapanırken temizlik
+    
+    if (!gtk_init_check(&argc, &argv)) {
+        g_error("GTK init failed!");
+        return 1;
+    }
+    
+    init_view(argc, argv);
+    gtk_main();
+
+    // Program sonunda shared memory'yi temizle
+    ShmBuf *shm = buf_init();
+    if (shm) {
+        buf_cleanup(shm);
+    }
+    
+    return 0;
+}
+

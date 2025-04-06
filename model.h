@@ -7,6 +7,8 @@
 #define BUF_SIZE 4096
 #define SHARED_FILE_PATH "mymsgbuf"
 
+extern pid_t main_pid;
+
 typedef struct {
     sem_t sem;
     size_t cnt;

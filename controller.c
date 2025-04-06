@@ -13,8 +13,10 @@ void handle_command(const char *input) {
 // Shared memory'den mesajları okuyup View'i günceller
 void update_message_display() {
     char *msg = read_messages();
-    if (msg && msg[0] != '\0') {
-        append_to_view(msg); // View katmanı fonksiyonu (sonra tanımlanacak)
+    if (msg) {  // Sadece NULL kontrolü yeterli
+        if (msg[0] != '\0') {
+            append_to_view(msg);
+        }
+        free(msg);  // Sadece NULL değilse free
     }
-    free(msg);
 }

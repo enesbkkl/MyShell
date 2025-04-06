@@ -52,13 +52,15 @@ static gboolean check_messages(gpointer user_data) {
 
 // GTK arayüzünü başlatma
 void init_view(int argc, char **argv) {
-    gtk_init(&argc, &argv);
+    if (gdk_display_get_default() == NULL) {
+        gtk_init(&argc, &argv);
+    }
 
     // Ana pencere
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Multi-Shell");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
 
     // Dikey kutu
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -66,6 +68,10 @@ void init_view(int argc, char **argv) {
 
     // Terminal çıktı alanı
     text_view = gtk_text_view_new();
+    if (!text_view) {
+        g_error("Failed to create text_view!");
+        return;
+    }
     gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), FALSE);
     gtk_text_view_set_monospace(GTK_TEXT_VIEW(text_view), TRUE);
     
